@@ -43,7 +43,7 @@ and outputs processed and/or summarized growth data as dataframes in a list.
 \details{
 Each project's data files must be contained in a separate folder, and all project folders
 placed in a single "hub" folder, the path for which is the argument \code{dataHubPath}.
-By default, analyzed data is exported to the hub folder, as an RData object with filename
+By default, analyzed data is exported to the working directory, as an RData object with filename
 \code{growthData_YYYY_MM_DD.RData}. The exported data is a list with as many elements as projects,
 each element named according to project folder names. Only summarized data ("analyzed_data")
 is exported by default, but unsummarized data ("processed_data") can also be exported by
@@ -57,7 +57,8 @@ have valid blank data available. \code{forceBlanking} can be set to TRUE to forc
 
 This function can rename slightly inconsistent variable names (such as \code{Drug} vs. \code{drugs}).
 When \code{testNames} is a character vector of correct column names, it is passed to the helper
-function \code{\link[=auto_rename]{auto_rename()}} and is used to check and fix incorrect column names.
+function \code{\link[=auto_rename]{auto_rename()}} and is used to check and fix incorrect column names. If column
+joining causes an error somewhere, column names are probably responsible somehow.
 }
 }
 \examples{

@@ -6,7 +6,7 @@
 #' @details
 #' Each project's data files must be contained in a separate folder, and all project folders
 #' placed in a single "hub" folder, the path for which is the argument `dataHubPath`.
-#' By default, analyzed data is exported to the hub folder, as an RData object with filename
+#' By default, analyzed data is exported to the working directory, as an RData object with filename
 #' `growthData_YYYY_MM_DD.RData`. The exported data is a list with as many elements as projects,
 #' each element named according to project folder names. Only summarized data ("analyzed_data")
 #' is exported by default, but unsummarized data ("processed_data") can also be exported by
@@ -19,7 +19,8 @@
 #' ## Renaming column names
 #' This function can rename slightly inconsistent variable names (such as `Drug` vs. `drugs`).
 #' When `testNames` is a character vector of correct column names, it is passed to the helper
-#' function [`auto_rename()`] and is used to check and fix incorrect column names.
+#' function [`auto_rename()`] and is used to check and fix incorrect column names. If column
+#' joining causes an error somewhere, column names are probably responsible somehow.
 #'
 #' @param dataHubPath The path of the "hub" folder containing project folders to analyze.
 #' @param forceBlanking If `TRUE`, `blankData` is used for blanking regardless of whether
@@ -55,7 +56,7 @@ quick_analyze <- function(dataHubPath,
 
   # Catch conflicting flags
   if(!exportOutput & !returnOutput){
-    stop("\nexportOutput and returnOutput can't both be FALSE, unless you want to receive nothing.")
+    stop("exportOutput and returnOutput can't both be FALSE, unless you want to receive nothing.")
   }
 
   # Parse file path
@@ -73,7 +74,7 @@ quick_analyze <- function(dataHubPath,
     message(paste("\nWorking on project", folders[project], "now..."))
 
     # Define project path
-    projectPath <- paste0(dataHubPath, "/", project)
+    projectPath <- paste0(dataHubPath, "/", folders[project])
 
     # Determine the raw file prefix and process data accordingly
     processedData <- auto_process(projectPath)
@@ -98,6 +99,8 @@ quick_analyze <- function(dataHubPath,
       # do I actually need to use list() here?
     }
 
+    message(paste("Project", folders[project], "done."))
+
   }
 
   # Rename export object names, removing whitespaces
@@ -105,14 +108,15 @@ quick_analyze <- function(dataHubPath,
 
   # Optional: export data package as RData to root data folder
   if(exportOutput){
-    save(dataPackage, file = paste0(dataHubPath, "/growthData_",
-                                    format(Sys.Date(), "%Y_%m_%d"), # "2023_03_28"
+    save(dataPackage, file = paste0("./growthData_",
+                                    format(Sys.Date(), "%Y_%m_%d"), # like "2023_03_28"
                                     ".RData"))
-    message(paste0("\nDone. The data has been exported as an RData file in ",
-                   dataHubPath, "."))
+    message(paste0("\nDone. The data has been exported as an RData file in the working directory."))
   } else {
     message("\n\"exportOutput\" is FALSE so there will be no RData file saved!\n")
   }
+
+  message("\nThank you for using grow97. Have a nice day!\n")
 
   if (returnOutput) {
     return(dataPackage)
@@ -173,7 +177,7 @@ extract_blanks <- function(dataHubPath,
 
   # Catch conflicting flags
   if(!exportOutput & !returnOutput){
-    stop("\nexportOutput and returnOutput can't both be FALSE, unless you want to receive nothing.")
+    stop("exportOutput and returnOutput can't both be FALSE, unless you want to receive nothing.")
   }
 
   # Parse file path
@@ -203,6 +207,8 @@ extract_blanks <- function(dataHubPath,
     if(nrow(blanksOnly) == 0){ # warn if a project exports no rows.
       warning(paste0(folders[project]," appears to have no valid BLANK values."))
     }
+
+    message(paste("Project", folders[project], "done."))
 
   }
 
@@ -235,11 +241,10 @@ extract_blanks <- function(dataHubPath,
 
   # Optional: export data package as RData to root data folder
   if(exportOutput){
-    save(blanksPackage, file = paste0(dataHubPath, "/blanks_",
-                                      format(Sys.Date(), "%Y %m %d"), # like "2023 03 28"
+    save(blanksPackage, file = paste0("./blanks_",
+                                      format(Sys.Date(), "%Y_%m_%d"), # like "2023_03_28"
                                       ".RData"))
-    message(paste0("\nDone. The blanks have been exported as an RData file in ",
-                   dataHubPath, "."))
+    message(paste0("\nDone. The data has been exported as an RData file in the working directory."))
   } else {
     message("\n\"exportOutput\" is FALSE so there will be no RData file saved!\n")
   }
