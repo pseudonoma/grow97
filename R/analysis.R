@@ -89,13 +89,9 @@ quick_analyze <- function(dataHubPath,
     analyzedData <- grow96::analyseODData(blankedData)
 
     # Add the data to the appropriate place in the final export list
-    if(exportGrowth){
-      dataPackage[[folders[project]]] <- list("processed_data" = blankedData,
-                                              "analyzed_data" = analyzedData)
-    } else {
-      dataPackage[[folders[project]]] <- list("analyzed_data" = analyzedData)
-      # do I actually need to use list() here?
-    }
+    dataPackage[[folders[project]]] <- list("processed_data" = blankedData,
+                                            "analyzed_data" = analyzedData)
+    # if(exportGrowth){export both} else{export only analyzed_data}
 
     message(paste("Project", folders[project], "done."))
 
