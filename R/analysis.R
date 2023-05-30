@@ -86,6 +86,8 @@ quick_analyze <- function(dataHubPath,
       message("Checking column names against supplied ones...")
       processedData <- auto_rename(processedData, colNames)
     }
+    ### TO ADD: check for key-rename flag as well; either should trigger auto_rename()
+
     # Generate QC report and create value indicating if QC detected blank data
     hasBlanks <- auto_QC(processedData, projectPath)
     # Blank the data appropriately

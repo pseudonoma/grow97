@@ -27,9 +27,25 @@ key <- rename(key, any_of(columnKey))
 # begin attempt to use the key
 
 # What is the strain column called in the project data (after processODData())?
+# Strain is user-supplied, meaning it cannot be hardcoded.
+# Name of column to apply Key to must be supplied. Make it the name of first key column.
+
+# for every row in [current data frame],
+#   if [Strain] value != [key] value
+#   and [key] value != NA
+#   [Strain] value <- [key] value
+# OR
+# for every row in [current data frame],
+#   [Strain] value <- [key] value that != NA
+# OR
+# replace all instances in column <Strain> with values in <key> that matches
+#
+
+
+
+###
 
 # auto_rename()
-
 auto_rename <- function(data, testNames){
 
   # Test: are ALL the name tests present?
