@@ -117,50 +117,94 @@ auto_blank <- function(data, forceBlanking, hasBlanks, blankData){
 #' Automatically correct variant column names.
 #'
 #' A helper function used by [`quick_analyze()`] and [`extract_blanks()`].
-#' This function checks the column names of a dataframe against a character vector and renames
-#' the column names accordingly.
+#' This function (a) checks the column names of a dataframe against a character vector, renaming
+#' them accordingly, and (b) checks cases in one column against a key, reassigning them accordingly.
 #'
 #' `auto_rename()` should only be used for minor variations in variable naming between projects,
 #' such as `Drug` also being named `drug`, `drugs`, or `Drugs`. The function uses a "core" word
 #' for string matching, since it seems quite unsafe to automatically correct variable names that
 #' differ too much. If your variable is somehow named e.g. `drg`, you're on your own.
 #'
-#' @importFrom dplyr rename
+#' Reassigning values can only be done on one column at this time.
+#'
+#' @importFrom dplyr rename select
 #' @importFrom stringr str_which regex
 #'
 #' @param data The dataframe or tibble with column names to check.
 #' @param testNames A character vector of correct column names to check for, and use to rename
 #' incorrect column names if necessary.
+#' @param testKey A dataframe to use as a key for replacing values in a column, as defined by the
+#' first column of the key.
 #'
 #' @return The original dataframe or tibble, with corrected column names if applicable.
 
-auto_rename <- function(data, testNames){
+auto_rename <- function(data, testNames, testKey){
 
-  # Test: are ALL the name tests present?
-  if(all(is.element(testNames, names(data)))){
-    # if is.element() returns all TRUE, then all() is TRUE and all (names) are correct
-    message("Column names checked and appear correct.")
-  } else {
-    # begin rename procedure
-    message("At least one column name appears incorrect; renaming.")
+  ### Fix 1: column names ###
+  if(!is.null(testNames)){
+    message("Checking column names against supplied ones...")
 
-    # get indices of variants in names(data)
-    where <- c()
-    for(test in 1:length(testNames)){
-      where <- append(where,
-                      stringr::str_which(names(data),
-                                         stringr::regex(testNames[test], ignore_case = TRUE))
-      )
+    # Test: are ALL the name tests present?
+    if(all(is.element(testNames, names(data)))){
+      # if is.element() returns all TRUE, then all() is TRUE and all (names) are correct
+      message("Column names checked and appear correct.")
+    } else {
+      # begin rename procedure
+      message("At least one column name appears incorrect; renaming.")
+
+      # get indices of variants in names(data)
+      where <- c()
+      for(test in 1:length(testNames)){
+        where <- append(where,
+                        stringr::str_which(names(data),
+                                           stringr::regex(testNames[test], ignore_case = TRUE))
+        )
+      }
+
+      # Compile list of actual (existing) variant names
+      oldNames <- c(names(data)[where])
+
+      # Create renaming key
+      key <- setNames(oldNames, testNames)
+
+      # Rename
+      data <- dplyr::rename(data, any_of(key))
     }
 
-    # Compile list of actual (existing) variant names
-    oldNames <- c(names(data)[where])
 
-    # Create renaming key
-    key <- setNames(oldNames, testNames)
+    ### Fix 2: column values ###
+  } else if(!is.null(testKey)){
 
-    # Rename
-    data <- dplyr::rename(data, any_of(key))
+    # define the column to change
+    targetCol <- names(key[1])
+    message(paste0("Checking values in column ", targetCol, ": \n"))
+
+    # extract a sub-key containing only reference and relevant variant column
+    subKey <- testKey |>
+      dplyr::select(all_of(targetCol), # reference is determined by first col of key
+                    folders[project])|>  # variant is relative to project
+      # dplyr::filter(!is.na(folders[project])) # doesn't seem to work on colnames?
+      # dplyr::filter(complete.cases(.)) # this doesn't work either, people be lyin on the internet
+      na.omit()
+
+    # construct testcase:
+    # testData <- dataPackage[[project]][["processed_data"]]
+
+    # construct vector for replacement
+    replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
+    originals <- testData[,targetCol][!is.na(replacements)] # old values
+
+    if(all(is.na(replacements))){
+      # replacements are all NA, so all() returns TRUE
+      message("No valid replacements in this column.")
+    } else {
+      # replace elements of testData$`targetCol` that match non-NA replacements
+      data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
+
+      # report changes because of paranoia (maybe this should be a warning?)
+      message(paste(unique(originals[!is.na(originals)]),
+                    "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
+    }
   }
 
 

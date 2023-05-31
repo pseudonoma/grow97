@@ -26,6 +26,13 @@
 #' When `colNames` is a character vector of correct column names, it is passed to the helper
 #' function [`auto_rename()`] and is used to check and fix incorrect column names. If column
 #' joining causes an error somewhere, column names are likely responsible.
+#' ## Reassigning values in a column
+#' This function can also replace values in a single column using a key with one column containing
+#' the correct values and any number of additional columns containing project-specific values to
+#' check for and replace. The first column of the key must be named identically to the data column
+#' to check, and subsequent columns named identically to their corresponding project folder name.
+#' [`auto_rename()`] will attempt to find cases in the data column that matches the project column
+#' in the key, and replace it with the corresponding correct value from the first column of the key.
 #'
 #' @param dataHubPath The path of the "hub" folder containing project folders to analyze.
 #' @param forceBlanking If `TRUE`, `blankData` is used for blanking regardless of whether
@@ -34,6 +41,8 @@
 #' for more information.
 #' @param colNames A character vector of column names to check and fix if necessary. See Details
 #' for more information.
+#' @param variableKey A dataframe of definitions for replacing matching values in a single column.
+#' See Details for more information.
 #' @param exportGrowth Defaults to `FALSE`. If `TRUE`, processed growth data will also be exported.
 #' @param combineData Defaults to `FALSE`. If `TRUE`, two additional objects of combined data are
 #' also produced. See Details for more information.
@@ -46,6 +55,7 @@
 #'               forceBlanking = FALSE,
 #'               blankData = NULL,
 #'               colNames = NULL,
+#'               variableKey = NULL
 #'               exportGrowth = FALSE,
 #'               combineData = FALSE,
 #'               fileMethod = "save")
@@ -59,6 +69,7 @@ quick_analyze <- function(dataHubPath,
                           forceBlanking = FALSE,
                           blankData = NULL,
                           colNames = NULL,
+                          variableKey = NULL,
                           exportGrowth = FALSE,
                           combineData = FALSE,
                           fileMethod = "save"){
@@ -81,12 +92,9 @@ quick_analyze <- function(dataHubPath,
 
     # Determine the raw file prefix and process data accordingly
     processedData <- auto_process(projectPath)
-    # Optional: rename columns
-    if(!is.null(colNames)){
-      message("Checking column names against supplied ones...")
-      processedData <- auto_rename(processedData, colNames)
-    }
-    ### TO ADD: check for key-rename flag as well; either should trigger auto_rename()
+
+    # Attempt to rename columns and/or replace values in a column
+    processedData <- auto_rename(processedData, colNames, variableKey)
 
     # Generate QC report and create value indicating if QC detected blank data
     hasBlanks <- auto_QC(processedData, projectPath)
@@ -173,7 +181,15 @@ quick_analyze <- function(dataHubPath,
 #' ## Renaming column names
 #' This function can rename slightly inconsistent variable names (such as `Drug` vs. `drugs`).
 #' When `colNames` is a character vector of correct column names, it is passed to the helper
-#' function [`auto_rename()`] and is used to check and fix incorrect column names.
+#' function [`auto_rename()`] and is used to check and fix incorrect column names. If column
+#' joining causes an error somewhere, column names are likely responsible.
+#' ## Reassigning values in a column
+#' This function can also replace values in a single column using a key with one column containing
+#' the correct values and any number of additional columns containing project-specific values to
+#' check for and replace. The first column of the key must be named identically to the data column
+#' to check, and subsequent columns named identically to their corresponding project folder name.
+#' [`auto_rename()`] will attempt to find cases in the data column that matches the project column
+#' in the key, and replace it with the corresponding correct value from the first column of the key.
 #'
 #' @importFrom dplyr bind_rows
 #'
@@ -187,6 +203,7 @@ quick_analyze <- function(dataHubPath,
 #' @examples
 #' extract_blanks(dataHubPath,
 #'                colNames = NULL,
+#'                variableKey = NULL,
 #'                meansBy = NULL,
 #'                combineData = FALSE,
 #'                fileMethod = "save")
@@ -198,6 +215,7 @@ quick_analyze <- function(dataHubPath,
 
 extract_blanks <- function(dataHubPath,
                            colNames = NULL,
+                           variableKey = NULL,
                            meansBy = NULL,
                            combineData = FALSE,
                            fileMethod = "save"){
@@ -221,11 +239,8 @@ extract_blanks <- function(dataHubPath,
     # Determine the raw file prefix and process data accordingly
     processedData <- auto_process(projectPath)
 
-    # Optional: rename columns
-    if(!is.null(colNames)){
-      message("Checking column names against supplied ones...")
-      processedData <- auto_rename(processedData, colNames)
-    }
+    # Attempt to rename columns and/or replace values in a column
+    processedData <- auto_rename(processedData, colNames, variableKey)
 
     # Extract all rows with BLANK in column <WellType>, and add to the final export list
     blanksOnly <- processedData[which(processedData$WellType == "BLANK"), ]
