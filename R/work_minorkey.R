@@ -11,24 +11,21 @@
 
 library(openxlsx)
 library(tidyverse)
-
 load("./data/blanks_2023_04_11.RData")
+load("./data/growthData_2023_04_11.RData")
 
+### Set up the actual key ###
 # get a working/test version of the strain key
 testKey <- read.xlsx("./data/The Phenotype Library Project 2023 05 19.xlsx",
           sheet = "Strain ID Key", startRow = 2)
 
-# make the actual key
+# make the actual key by dropping cols and changing names
 key <- select(testKey, -c("Mutation", "Assayed.by", "STPTEST", "STPTEST2"))
 columnKey <- c(setNames(names(key[2:4]), names(blanksPackage[1:3])), # first three are in same order
             setNames(names(key[5:6]), names(blanksPackage[5:4]))) # last two are swapped >_>
 key <- rename(key, any_of(columnKey))
 
-# begin attempt to use the key
-
-# What is the strain column called in the project data (after processODData())?
-# Strain is user-supplied, meaning it cannot be hardcoded.
-# Name of column to apply Key to must be supplied. Make it the name of first key column.
+###
 
 # for every row in [current data frame],
 #   if [Strain] value != [key] value
@@ -41,13 +38,41 @@ key <- rename(key, any_of(columnKey))
 # replace all instances in column <Strain> with values in <key> that matches
 #
 
-
-
-###
+# debug
+folders <- names(blanksPackage)
+project <- 5
+folders[project]
 
 # auto_rename()
 auto_rename <- function(data, testNames){
 
+  ### 1. Check column values
+  # define the column to change
+  targetCol <- names(key[1])
+  message(paste0("Key detected. Checking values in column ", targetCol, ": \n"))
+
+  # extract a sub-key containing only reference and relevant variant column
+  subKey <- key |>
+    dplyr::select(all_of(targetCol), folders[project])|> # reference is hardcoded, variant is relative
+    # dplyr::filter(!is.na(folders[project])) # doesn't seem to work on colnames?
+    # dplyr::filter(complete.cases(.)) # this doesn't work either, people be lyin on the internet
+    na.omit()
+
+  # construct testcase:
+  # testData <- dataPackage[[project]][["processed_data"]]
+
+  # construct vector for replacement
+  replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
+  originals <- testData[,targetCol][!is.na(replacements)] # old values
+
+  # replace elements of testData$`targetCol` that match non-NA replacements
+  data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
+
+  message(paste(unique(originals[!is.na(originals)]),
+                "renamed", unique(replacements[!is.na(replacements)]), "\n"))
+
+
+  ### 2. Check column names
   # Test: are ALL the name tests present?
   if(all(is.element(testNames, names(data)))){
     # if is.element() returns all TRUE, then all() is TRUE and all (names) are correct
@@ -80,4 +105,37 @@ auto_rename <- function(data, testNames){
 
 } # end auto_rename().
 
+# key matching testcase
 
+testData <- data.frame("Strain" = c(NA, "Var1", "Var2", "RM03", "Var4", "Var5", "RM06"))
+subKey <- data.frame("Strain" = c("RM01", "RM02", "RM03", "RM04", "RM05", "RM06", "RM-extra"),
+                     "Variant" = c("Var1", "Var2", "Var3", "Var4", "Var5", "Var6", "Var-extra"))
+
+
+replacements <- subKey[ ,targetCol][match(testData[ ,targetCol], subKey[ ,2])]
+originals <- testData[,targetCol][!is.na(replacements)]
+testData[,targetCol][!is.na(replacements)] <- replacements[!is.na(replacements)]
+
+message(paste0("Renaming column ", targetCol, ": \n"))
+message(paste(unique(originals[!is.na(originals)]),
+              "renamed", unique(replacements[!is.na(replacements)]), "\n"))
+
+
+indices <- match(data[,targetCol], key[, 2])
+replacements <- key$Strain[indices]
+
+data[!is.na(replacements), targetCol] <- replacements[!is.na(replacements)]
+
+
+
+#
+
+key <- data.frame(A = 1:3, B = LETTERS[1:3])
+
+test <- c(2, 5, 4, 1)
+
+swaps <- key$B[match(test, key$A)]
+swaps
+
+test[!is.na(swaps)] <- swaps[!is.na(swaps)]
+test
