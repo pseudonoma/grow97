@@ -4,10 +4,12 @@
 \alias{auto_rename}
 \title{Automatically correct variant column names.}
 \usage{
-auto_rename(data, testNames, testKey)
+auto_rename(data, projectName, testNames, renameKey)
 }
 \arguments{
 \item{data}{The dataframe or tibble with column names to check.}
+
+\item{projectName}{The name of the current project being processed.}
 
 \item{testNames}{A character vector of correct column names to check for, and use to rename
 incorrect column names if necessary.}

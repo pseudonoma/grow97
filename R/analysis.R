@@ -85,16 +85,17 @@ quick_analyze <- function(dataHubPath,
   # Prepare final export object and begin auto-processing
   dataPackage <- list()
   for(project in 1:length(folders)){
-    message(paste("\nWorking on project", folders[project], "now..."))
 
-    # Define project path
-    projectPath <- paste0(dataHubPath, "/", folders[project])
+    # Define project name and path
+    projectName <- folders[project]
+    projectPath <- paste0(dataHubPath, "/", projectName)
+    message(paste("\nWorking on project", projectName, "now..."))
 
     # Determine the raw file prefix and process data accordingly
     processedData <- auto_process(projectPath)
 
     # Attempt to rename columns and/or replace values in a column
-    processedData <- auto_rename(processedData, colNames, variableKey)
+    processedData <- auto_rename(processedData, projectName, colNames, variableKey)
 
     # Generate QC report and create value indicating if QC detected blank data
     hasBlanks <- auto_QC(processedData, projectPath)
@@ -104,10 +105,10 @@ quick_analyze <- function(dataHubPath,
     analyzedData <- grow96::analyseODData(blankedData)
 
     # Add the data to the appropriate place in the final export list
-    dataPackage[[folders[project]]] <- list("processed_data" = blankedData,
-                                            "analyzed_data" = analyzedData)
+    dataPackage[[projectName]] <- list("processed_data" = blankedData,
+                                       "analyzed_data" = analyzedData)
 
-    message(paste("Project", folders[project], "done."))
+    message(paste("Project", projectName, "done."))
 
   }
 
@@ -231,25 +232,27 @@ extract_blanks <- function(dataHubPath,
   # Prepare final export object and begin auto-processing
   blanksPackage <- list()
   for(project in 1:length(folders)){
-    message(paste("\nWorking on project", folders[project], "now..."))
 
-    # Define project path
-    projectPath <- paste0(dataHubPath, "/", folders[project])
+    # Define project name and path
+    projectName <- folders[project]
+    projectPath <- paste0(dataHubPath, "/", projectName)
+
+    message(paste("\nWorking on project", projectName, "now..."))
 
     # Determine the raw file prefix and process data accordingly
     processedData <- auto_process(projectPath)
 
     # Attempt to rename columns and/or replace values in a column
-    processedData <- auto_rename(processedData, colNames, variableKey)
+    processedData <- auto_rename(processedData, projectName, colNames, variableKey)
 
     # Extract all rows with BLANK in column <WellType>, and add to the final export list
     blanksOnly <- processedData[which(processedData$WellType == "BLANK"), ]
-    blanksPackage[[folders[project]]] <- blanksOnly
+    blanksPackage[[projectName]] <- blanksOnly
     if(nrow(blanksOnly) == 0){ # warn if a project exports no rows.
-      warning(paste0(folders[project]," appears to have no valid BLANK values."))
+      warning(paste0(projectName," appears to have no valid BLANK values."))
     }
 
-    message(paste("Project", folders[project], "done."))
+    message(paste("Project", projectName, "done."))
 
   }
 

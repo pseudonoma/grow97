@@ -131,6 +131,7 @@ auto_blank <- function(data, forceBlanking, hasBlanks, blankData){
 #' @importFrom stringr str_which regex
 #'
 #' @param data The dataframe or tibble with column names to check.
+#' @param projectName The name of the current project being processed.
 #' @param testNames A character vector of correct column names to check for, and use to rename
 #' incorrect column names if necessary.
 #' @param testKey A dataframe to use as a key for replacing values in a column, as defined by the
@@ -138,7 +139,11 @@ auto_blank <- function(data, forceBlanking, hasBlanks, blankData){
 #'
 #' @return The original dataframe or tibble, with corrected column names if applicable.
 
-auto_rename <- function(data, testNames, testKey){
+auto_rename <- function(data, projectName, testNames, renameKey){
+
+  # hacky fix for project names because I'm tired and pissed off
+  # a version of this is run before the wrapper functions export the data object
+  projectName <- chartr(" ", "_", projectName)
 
   ### Fix 1: column names ###
   if(!is.null(testNames)){
@@ -171,18 +176,19 @@ auto_rename <- function(data, testNames, testKey){
       data <- dplyr::rename(data, any_of(key))
     }
 
+  }
 
-    ### Fix 2: values in a column ###
-  } else if(!is.null(testKey)){
+  ### Fix 2: values in a column ###
+  if(!is.null(renameKey)){
 
     # define the column to change
-    targetCol <- names(key[1])
+    targetCol <- names(renameKey[1])
     message(paste0("Checking values in column ", targetCol, ": \n"))
 
     # extract a sub-key containing only reference and relevant variant column
-    subKey <- testKey |>
+    subKey <- renameKey |>
       dplyr::select(all_of(targetCol), # reference is determined by first col of key
-                    folders[project])|>  # variant is relative to project
+                    projectName)|>  # variant is relative to project
       # dplyr::filter(!is.na(folders[project])) # doesn't seem to work on colnames?
       # dplyr::filter(complete.cases(.)) # this doesn't work either, people be lyin on the internet
       na.omit()
@@ -192,7 +198,7 @@ auto_rename <- function(data, testNames, testKey){
 
     # construct vector for replacement
     replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
-    originals <- testData[,targetCol][!is.na(replacements)] # old values
+    originals <- data[,targetCol][!is.na(replacements)] # old values
 
     if(all(is.na(replacements))){
       # replacements are all NA, so all() returns TRUE

@@ -3,10 +3,11 @@
 data <- data.frame("Strain" = c("Var1", "Var2", "RM03", "Var4", "Var5", "RM06"))
 subKey <- data.frame("Strain" = c("RM01", "RM02", "RM03", "RM04", "RM05", "RM06", "RM-extra"),
                      "Variant" = c("Var1", "Var2", "Var3", "Var4", "Var5", "Var6", "Var-extra"))
+targetCol <- "Strain"
 
 
-replacements <- subKey[ ,targetCol][match(testData[ ,targetCol], subKey[ ,2])]
-originals <- testData[,targetCol][!is.na(replacements)]
+replacements <- subKey[ ,targetCol][match(data[ ,targetCol], subKey[ ,2])]
+originals <- data[,targetCol][!is.na(replacements)]
 testData[,targetCol][!is.na(replacements)] <- replacements[!is.na(replacements)]
 
 message(paste0("Renaming column ", targetCol, ": \n"))
