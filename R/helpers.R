@@ -172,7 +172,7 @@ auto_rename <- function(data, testNames, testKey){
     }
 
 
-    ### Fix 2: column values ###
+    ### Fix 2: values in a column ###
   } else if(!is.null(testKey)){
 
     # define the column to change

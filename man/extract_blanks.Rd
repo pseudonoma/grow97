@@ -7,6 +7,7 @@
 extract_blanks(
   dataHubPath,
   colNames = NULL,
+  variableKey = NULL,
   meansBy = NULL,
   combineData = FALSE,
   fileMethod = "save"
@@ -17,6 +18,9 @@ extract_blanks(
 
 \item{colNames}{A character vector of column names to check and fix if necessary. See Details
 for more information.}
+
+\item{variableKey}{A dataframe of definitions for replacing matching values in a single column.
+See Details for more information.}
 
 \item{meansBy}{A character vector of variables to group means by. If this argument is \code{NULL}
 (the default), no mean blank ODs will be generated. See Details for more information.}
@@ -49,12 +53,24 @@ generating blank values for use with \code{quick_analyze()} or \code{\link[grow9
 
 This function can rename slightly inconsistent variable names (such as \code{Drug} vs. \code{drugs}).
 When \code{colNames} is a character vector of correct column names, it is passed to the helper
-function \code{\link[=auto_rename]{auto_rename()}} and is used to check and fix incorrect column names.
+function \code{\link[=auto_rename]{auto_rename()}} and is used to check and fix incorrect column names. If column
+joining causes an error somewhere, column names are likely responsible.
+}
+
+\subsection{Reassigning values in a column}{
+
+This function can also replace values in a single column using a key with one column containing
+the correct values and any number of additional columns containing project-specific values to
+check for and replace. The first column of the key must be named identically to the data column
+to check, and subsequent columns named identically to their corresponding project folder name.
+\code{\link[=auto_rename]{auto_rename()}} will attempt to find cases in the data column that matches the project column
+in the key, and replace it with the corresponding correct value from the first column of the key.
 }
 }
 \examples{
 extract_blanks(dataHubPath,
                colNames = NULL,
+               variableKey = NULL,
                meansBy = NULL,
                combineData = FALSE,
                fileMethod = "save")

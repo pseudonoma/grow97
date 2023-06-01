@@ -321,7 +321,8 @@ get_mean_blanks <- function(data, meanGroups){
   meanBlanks <- data |>
     # took me 2 whole days to figure out how to pass strings to group_by():
     dplyr::group_by(across(all_of(meanGroups))) |>
-    dplyr::summarize(blankOD = mean(OD))
+    dplyr::summarize(blankOD = mean(OD)) |>
+    dplyr::ungroup()
 
   return(meanBlanks)
 

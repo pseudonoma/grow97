@@ -4,25 +4,30 @@
 \alias{auto_rename}
 \title{Automatically correct variant column names.}
 \usage{
-auto_rename(data, testNames)
+auto_rename(data, testNames, testKey)
 }
 \arguments{
 \item{data}{The dataframe or tibble with column names to check.}
 
 \item{testNames}{A character vector of correct column names to check for, and use to rename
 incorrect column names if necessary.}
+
+\item{testKey}{A dataframe to use as a key for replacing values in a column, as defined by the
+first column of the key.}
 }
 \value{
 The original dataframe or tibble, with corrected column names if applicable.
 }
 \description{
 A helper function used by \code{\link[=quick_analyze]{quick_analyze()}} and \code{\link[=extract_blanks]{extract_blanks()}}.
-This function checks the column names of a dataframe against a character vector and renames
-the column names accordingly.
+This function (a) checks the column names of a dataframe against a character vector, renaming
+them accordingly, and (b) checks cases in one column against a key, reassigning them accordingly.
 }
 \details{
 \code{auto_rename()} should only be used for minor variations in variable naming between projects,
 such as \code{Drug} also being named \code{drug}, \code{drugs}, or \code{Drugs}. The function uses a "core" word
 for string matching, since it seems quite unsafe to automatically correct variable names that
 differ too much. If your variable is somehow named e.g. \code{drg}, you're on your own.
+
+Reassigning values can only be done on one column at this time.
 }
