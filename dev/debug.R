@@ -13,7 +13,9 @@ projectPath <- paste0("./data/", projectName)
 message(paste("\nWorking on project", projectName, "now..."))
 
 # Determine the raw file prefix and process data accordingly
-data <- auto_process(projectPath)
+#data <- auto_process(projectPath)
+#saveRDS(data, file = "./data/debug_data.rds")
+data <- readRDS("./data/debug_data.rds")
 
 # Attempt to rename columns and/or replace values in a column
 # processedData <- auto_rename(processedData, projectName, colNames, variableKey)
@@ -23,6 +25,7 @@ data <- auto_process(projectPath)
 #data <- processedData
 #projectName <- projectName
 testNames <- NULL
+projectName <- chartr(" ", "_", projectName)
 renameKey <- readRDS("./data/renaming_key 2023 06 01.rds")
 
 auto_rename <- function(data, projectName, testNames, renameKey){
@@ -83,8 +86,9 @@ auto_rename <- function(data, projectName, testNames, renameKey){
     # testData <- dataPackage[[project]][["processed_data"]]
 
     # construct vector for replacement
+    # note: subKey is df, but data is a tibble and must be indexed with [[.
     replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
-    originals <- data[,targetCol][!is.na(replacements)] # old values <----- ##### ERROR HERE #####
+    originals <- data[[targetCol]][!is.na(replacements)] # old values
 
     if(all(is.na(replacements))){
       # replacements are all NA, so all() returns TRUE
@@ -97,6 +101,9 @@ auto_rename <- function(data, projectName, testNames, renameKey){
       message(paste(unique(originals[!is.na(originals)]),
                     "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
     }
+    ##### 2023 06 02
+    # Currently even identical values are replaced and reported. This shouldn't happen.
+
   }
 
 

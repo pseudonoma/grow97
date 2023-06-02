@@ -20,6 +20,21 @@ replacements <- key$Strain[indices]
 
 data[!is.na(replacements), targetCol] <- replacements[!is.na(replacements)]
 
+# debug 2023 06 02
+
+targetCol <- names(renameKey[1])
+message(paste0("Checking values in column ", targetCol, ": \n"))
+
+# extract a sub-key containing only reference and relevant variant column
+subKey <- renameKey |>
+  dplyr::select(all_of(targetCol), # reference is determined by first col of key
+                projectName)|>  # variant is relative to project
+  na.omit()
+
+# construct vector for replacement
+replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
+originals <- data[,targetCol][!is.na(replacements)] # old values <----- ##### ERROR HERE #####
+
 
 
 #
