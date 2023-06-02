@@ -10,15 +10,6 @@ replacements <- subKey[ ,targetCol][match(data[ ,targetCol], subKey[ ,2])]
 originals <- data[,targetCol][!is.na(replacements)]
 testData[,targetCol][!is.na(replacements)] <- replacements[!is.na(replacements)]
 
-message(paste0("Renaming column ", targetCol, ": \n"))
-message(paste(unique(originals[!is.na(originals)]),
-              "renamed", unique(replacements[!is.na(replacements)]), "\n"))
-
-
-indices <- match(data[,targetCol], key[, 2])
-replacements <- key$Strain[indices]
-
-data[!is.na(replacements), targetCol] <- replacements[!is.na(replacements)]
 
 # debug 2023 06 02
 
@@ -27,13 +18,15 @@ message(paste0("Checking values in column ", targetCol, ": \n"))
 
 # extract a sub-key containing only reference and relevant variant column
 subKey <- renameKey |>
+  #dplyr::as_tibble() |>
   dplyr::select(all_of(targetCol), # reference is determined by first col of key
-                projectName)|>  # variant is relative to project
+                projectName) |>  # variant is relative to project
   na.omit()
 
 # construct vector for replacement
+# subKey is df, but data is a tibble and must be indexed with [[.
 replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
-originals <- data[,targetCol][!is.na(replacements)] # old values <----- ##### ERROR HERE #####
+originals <- data[[targetCol]][!is.na(replacements)] # old values <----- ##### ERROR HERE #####
 
 
 
