@@ -101,8 +101,6 @@ auto_rename <- function(data, projectName, testNames, renameKey){
       message(paste(unique(originals[!is.na(originals)]),
                     "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
     }
-    ##### 2023 06 02
-    # Currently even identical values are replaced and reported. This shouldn't happen.
 
   }
 

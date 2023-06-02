@@ -206,6 +206,8 @@ auto_rename <- function(data, projectName, testNames, renameKey){
     } else {
       # replace elements of testData$`targetCol` that match non-NA replacements
       data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
+      # currently replaces even identical values; not sure if I want to restrict this to
+      # only cases where values in replacements don't match target.
 
       # report changes because of paranoia (maybe this should be a warning?)
       message(paste(unique(originals[!is.na(originals)]),
