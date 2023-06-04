@@ -1,0 +1,43 @@
+# key matching testcase
+
+data <- data.frame("Strain" = c("Var1", "Var2", "RM03", "Var4", "Var5", "RM06"))
+subKey <- data.frame("Strain" = c("RM01", "RM02", "RM03", "RM04", "RM05", "RM06", "RM-extra"),
+                     "Variant" = c("Var1", "Var2", "Var3", "Var4", "Var5", "Var6", "Var-extra"))
+targetCol <- "Strain"
+
+
+replacements <- subKey[ ,targetCol][match(data[ ,targetCol], subKey[ ,2])]
+originals <- data[,targetCol][!is.na(replacements)]
+testData[,targetCol][!is.na(replacements)] <- replacements[!is.na(replacements)]
+
+
+# debug 2023 06 02
+
+targetCol <- names(renameKey[1])
+message(paste0("Checking values in column ", targetCol, ": \n"))
+
+# extract a sub-key containing only reference and relevant variant column
+subKey <- renameKey |>
+  #dplyr::as_tibble() |>
+  dplyr::select(all_of(targetCol), # reference is determined by first col of key
+                projectName) |>  # variant is relative to project
+  na.omit()
+
+# construct vector for replacement
+# subKey is df, but data is a tibble and must be indexed with [[.
+replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
+originals <- data[[targetCol]][!is.na(replacements)] # old values <----- ##### ERROR HERE #####
+
+
+
+#
+
+key <- data.frame(A = 1:3, B = LETTERS[1:3])
+
+test <- c(2, 5, 4, 1)
+
+swaps <- key$B[match(test, key$A)]
+swaps
+
+test[!is.na(swaps)] <- swaps[!is.na(swaps)]
+test

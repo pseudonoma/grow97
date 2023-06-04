@@ -9,6 +9,7 @@ quick_analyze(
   forceBlanking = FALSE,
   blankData = NULL,
   colNames = NULL,
+  variableKey = NULL,
   exportGrowth = FALSE,
   combineData = FALSE,
   fileMethod = "save"
@@ -25,6 +26,9 @@ for more information.}
 
 \item{colNames}{A character vector of column names to check and fix if necessary. See Details
 for more information.}
+
+\item{variableKey}{A dataframe of definitions for replacing matching values in a single column.
+See Details for more information.}
 
 \item{exportGrowth}{Defaults to \code{FALSE}. If \code{TRUE}, processed growth data will also be exported.}
 
@@ -71,12 +75,23 @@ When \code{colNames} is a character vector of correct column names, it is passed
 function \code{\link[=auto_rename]{auto_rename()}} and is used to check and fix incorrect column names. If column
 joining causes an error somewhere, column names are likely responsible.
 }
+
+\subsection{Reassigning values in a column}{
+
+This function can also replace values in a single column using a key with one column containing
+the correct values and any number of additional columns containing project-specific values to
+check for and replace. The first column of the key must be named identically to the data column
+to check, and subsequent columns named identically to their corresponding project folder name.
+\code{\link[=auto_rename]{auto_rename()}} will attempt to find cases in the data column that matches the project column
+in the key, and replace it with the corresponding correct value from the first column of the key.
+}
 }
 \examples{
 quick_analyze(dataHubPath,
               forceBlanking = FALSE,
               blankData = NULL,
               colNames = NULL,
+              variableKey = NULL
               exportGrowth = FALSE,
               combineData = FALSE,
               fileMethod = "save")
