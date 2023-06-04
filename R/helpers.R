@@ -183,7 +183,7 @@ auto_rename <- function(data, projectName, testNames, renameKey){
 
     # define the column to change
     targetCol <- names(renameKey[1])
-    message(paste0("Checking values in column ", targetCol, ": \n"))
+    message(paste0("\nChecking values in column ", targetCol, ":"))
 
     # extract a sub-key containing only reference and relevant variant column
     subKey <- renameKey |>
