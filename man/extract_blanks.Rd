@@ -65,6 +65,8 @@ check for and replace. The first column of the key must be named identically to 
 to check, and subsequent columns named identically to their corresponding project folder name.
 \code{\link[=auto_rename]{auto_rename()}} will attempt to find cases in the data column that matches the project column
 in the key, and replace it with the corresponding correct value from the first column of the key.
+For safety, it also preserves the old values by copying it into a new column named in the format
+\verb{<old name>_old}.
 }
 }
 \examples{

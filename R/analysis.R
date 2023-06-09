@@ -33,6 +33,8 @@
 #' to check, and subsequent columns named identically to their corresponding project folder name.
 #' [`auto_rename()`] will attempt to find cases in the data column that matches the project column
 #' in the key, and replace it with the corresponding correct value from the first column of the key.
+#' For safety, it also preserves the old values by copying it into a new column named in the format
+#' `<old name>_old`.
 #'
 #' @param dataHubPath The path of the "hub" folder containing project folders to analyze.
 #' @param forceBlanking If `TRUE`, `blankData` is used for blanking regardless of whether
@@ -191,6 +193,8 @@ quick_analyze <- function(dataHubPath,
 #' to check, and subsequent columns named identically to their corresponding project folder name.
 #' [`auto_rename()`] will attempt to find cases in the data column that matches the project column
 #' in the key, and replace it with the corresponding correct value from the first column of the key.
+#' For safety, it also preserves the old values by copying it into a new column named in the format
+#' `<old name>_old`.
 #'
 #' @importFrom dplyr bind_rows
 #'
