@@ -183,7 +183,7 @@ auto_rename <- function(data, projectName, testNames, renameKey){
 
     # define the column to change
     targetCol <- names(renameKey[1])
-    message(paste0("\nChecking values in column ", targetCol, ":"))
+    message(paste0("\nFixing values in column \"", targetCol, "\":"))
 
     # extract a sub-key containing only reference and relevant variant column
     subKey <- renameKey |>
@@ -204,15 +204,15 @@ auto_rename <- function(data, projectName, testNames, renameKey){
       # replacements are all NA, so all() returns TRUE
       message("No valid replacements in this column.")
     } else {
-      # replace elements of testData$`targetCol` that match non-NA replacements
+      # replace elements of data$`targetCol` that match non-NA replacements
       data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
       # currently replaces even identical values; not sure if I want to restrict this to
       #  only cases where values in replacements don't match target.
 
       # report changes because of paranoia (maybe this should be a warning?)
       message(paste(unique(originals[!is.na(originals)]),
-                    "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
-    }
+                    "replaced with", unique(replacements[!is.na(replacements)])))
+    } # known bug: if length(originals) != replacements, the list loops around and reports incorrectly.
 
   }
 

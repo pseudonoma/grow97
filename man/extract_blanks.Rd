@@ -48,6 +48,8 @@ supplying a character vector to the argument \code{meansBy}. The vector must con
 group by, which is then passed to \code{\link[=get_mean_blanks]{get_mean_blanks()}}.  \code{meansBy} is necessary for
 generating blank values for use with \code{quick_analyze()} or \code{\link[grow96:blankODs]{grow96::blankODs}}.
 }
+}
+\section{Automatically fixing columns/values}{
 
 \subsection{Renaming column names}{
 
@@ -69,6 +71,7 @@ For safety, it also preserves the old values by copying it into a new column nam
 \verb{<old name>_old}.
 }
 }
+
 \examples{
 extract_blanks(dataHubPath,
                colNames = NULL,

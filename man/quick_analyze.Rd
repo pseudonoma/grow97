@@ -67,6 +67,8 @@ combines all growth curve data into one large tibble. This is then used to gener
 object, "all_analyzed", by calling \code{\link[grow96:analyseODData]{grow96::analyseODData}}. This effectively doubles the amount
 of data contained in the final data object. This may have consequences, I don't know.
 }
+}
+\section{Automatically fixing columns/values}{
 
 \subsection{Renaming column names}{
 
@@ -88,6 +90,7 @@ For safety, it also preserves the old values by copying it into a new column nam
 \verb{<old name>_old}.
 }
 }
+
 \examples{
 quick_analyze(dataHubPath,
               forceBlanking = FALSE,

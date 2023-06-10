@@ -21,6 +21,8 @@
 #' combines all growth curve data into one large tibble. This is then used to generate the second
 #' object, "all_analyzed", by calling [`grow96::analyseODData`]. This effectively doubles the amount
 #' of data contained in the final data object. This may have consequences, I don't know.
+#'
+#' @section Automatically fixing columns/values:
 #' ## Renaming column names
 #' This function can rename slightly inconsistent variable names (such as `Drug` vs. `drugs`).
 #' When `colNames` is a character vector of correct column names, it is passed to the helper
@@ -110,7 +112,7 @@ quick_analyze <- function(dataHubPath,
     dataPackage[[projectName]] <- list("processed_data" = blankedData,
                                        "analyzed_data" = analyzedData)
 
-    message(paste("Project", projectName, "done."))
+    message(paste("\nProject", projectName, "done."))
 
   }
 
@@ -125,7 +127,7 @@ quick_analyze <- function(dataHubPath,
     combinedGrowths <- dplyr::bind_rows(allGrowth)
 
     # Rerun analysis on the combined growth data
-    message("Analyzing combined data...")
+    message("\nAnalyzing combined data...")
     combinedAnalysis <- grow96::analyseODData(combinedGrowths)
 
     # Add combined growth data and name it
@@ -181,20 +183,8 @@ quick_analyze <- function(dataHubPath,
 #' supplying a character vector to the argument `meansBy`. The vector must contain variables to
 #' group by, which is then passed to [`get_mean_blanks()`].  `meansBy` is necessary for
 #' generating blank values for use with `quick_analyze()` or [`grow96::blankODs`].
-#' ## Renaming column names
-#' This function can rename slightly inconsistent variable names (such as `Drug` vs. `drugs`).
-#' When `colNames` is a character vector of correct column names, it is passed to the helper
-#' function [`auto_rename()`] and is used to check and fix incorrect column names. If column
-#' joining causes an error somewhere, column names are likely responsible.
-#' ## Reassigning values in a column
-#' This function can also replace values in a single column using a key with one column containing
-#' the correct values and any number of additional columns containing project-specific values to
-#' check for and replace. The first column of the key must be named identically to the data column
-#' to check, and subsequent columns named identically to their corresponding project folder name.
-#' [`auto_rename()`] will attempt to find cases in the data column that matches the project column
-#' in the key, and replace it with the corresponding correct value from the first column of the key.
-#' For safety, it also preserves the old values by copying it into a new column named in the format
-#' `<old name>_old`.
+#'
+#' @inheritSection quick_analyze Automatically fixing columns/values
 #'
 #' @importFrom dplyr bind_rows
 #'
@@ -256,7 +246,7 @@ extract_blanks <- function(dataHubPath,
       warning(paste0(projectName," appears to have no valid BLANK values."))
     }
 
-    message(paste("Project", projectName, "done."))
+    message(paste("\nProject", projectName, "done."))
 
   }
 
