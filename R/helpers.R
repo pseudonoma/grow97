@@ -202,7 +202,7 @@ auto_rename <- function(data, projectName, testNames, renameKey){
 
     if(all(is.na(replacements))){
       # replacements are all NA, so all() returns TRUE
-      message("No valid replacements in this column.")
+      message("No valid replacements in this column.\n")
     } else {
       # replace elements of data$`targetCol` that match non-NA replacements
       data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
@@ -211,7 +211,7 @@ auto_rename <- function(data, projectName, testNames, renameKey){
 
       # report changes because of paranoia (maybe this should be a warning?)
       message(paste(unique(originals[!is.na(originals)]),
-                    "replaced with", unique(replacements[!is.na(replacements)])))
+                    "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
     } # known bug: if length(originals) != replacements, the list loops around and reports incorrectly.
 
   }

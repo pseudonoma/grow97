@@ -112,7 +112,7 @@ quick_analyze <- function(dataHubPath,
     dataPackage[[projectName]] <- list("processed_data" = blankedData,
                                        "analyzed_data" = analyzedData)
 
-    message(paste("\nProject", projectName, "done."))
+    message(paste("Project", projectName, "done."))
 
   }
 
@@ -246,7 +246,7 @@ extract_blanks <- function(dataHubPath,
       warning(paste0(projectName," appears to have no valid BLANK values."))
     }
 
-    message(paste("\nProject", projectName, "done."))
+    message(paste("Project", projectName, "done."))
 
   }
 
