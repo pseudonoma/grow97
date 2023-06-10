@@ -183,7 +183,7 @@ auto_rename <- function(data, projectName, testNames, renameKey){
 
     # define the column to change
     targetCol <- names(renameKey[1])
-    message(paste0("\nChecking values in column ", targetCol, ":"))
+    message(paste0("\nFixing values in column \"", targetCol, "\":"))
 
     # extract a sub-key containing only reference and relevant variant column
     subKey <- renameKey |>
@@ -193,25 +193,26 @@ auto_rename <- function(data, projectName, testNames, renameKey){
       # dplyr::filter(complete.cases(.)) # this doesn't work either, people be lyin on the internet
       na.omit()
 
-    # construct testcase:
-    # testData <- dataPackage[[project]][["processed_data"]]
-
     # construct vector for replacement
-    # note: subKey is df, but data is a tibble and must be indexed with [[.
-    replacements <- subKey[ ,targetCol][match(data[[targetCol]], subKey[ ,2])] # new values
+    replacements <- subKey[[targetCol]][match(data[[targetCol]], subKey[, 2])] # new values
     originals <- data[[targetCol]][!is.na(replacements)] # old values
+
+    # preserve the old names as a new column
+    data[[paste0(targetCol, "_old")]] <- data[[targetCol]]
 
     if(all(is.na(replacements))){
       # replacements are all NA, so all() returns TRUE
-      message("No valid replacements in this column.")
+      message("No valid replacements in this column.\n")
     } else {
-      # replace elements of testData$`targetCol` that match non-NA replacements
+      # replace elements of data$`targetCol` that match non-NA replacements
       data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
+      # currently replaces even identical values; not sure if I want to restrict this to
+      #  only cases where values in replacements don't match target.
 
       # report changes because of paranoia (maybe this should be a warning?)
       message(paste(unique(originals[!is.na(originals)]),
                     "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
-    }
+    } # known bug: if length(originals) != replacements, the list loops around and reports incorrectly.
 
   }
 

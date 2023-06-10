@@ -67,6 +67,8 @@ combines all growth curve data into one large tibble. This is then used to gener
 object, "all_analyzed", by calling \code{\link[grow96:analyseODData]{grow96::analyseODData}}. This effectively doubles the amount
 of data contained in the final data object. This may have consequences, I don't know.
 }
+}
+\section{Automatically fixing columns/values}{
 
 \subsection{Renaming column names}{
 
@@ -84,8 +86,11 @@ check for and replace. The first column of the key must be named identically to 
 to check, and subsequent columns named identically to their corresponding project folder name.
 \code{\link[=auto_rename]{auto_rename()}} will attempt to find cases in the data column that matches the project column
 in the key, and replace it with the corresponding correct value from the first column of the key.
+For safety, it also preserves the old values by copying it into a new column named in the format
+\verb{<old name>_old}.
 }
 }
+
 \examples{
 quick_analyze(dataHubPath,
               forceBlanking = FALSE,
