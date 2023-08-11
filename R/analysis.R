@@ -29,14 +29,16 @@
 #' function [`auto_rename()`] and is used to check and fix incorrect column names. If column
 #' joining causes an error somewhere, column names are likely responsible.
 #' ## Reassigning values in a column
-#' This function can also replace values in a single column using a key with one column containing
-#' the correct values and any number of additional columns containing project-specific values to
-#' check for and replace. The first column of the key must be named identically to the data column
-#' to check, and subsequent columns named identically to their corresponding project folder name.
-#' [`auto_rename()`] will attempt to find cases in the data column that matches the project column
-#' in the key, and replace it with the corresponding correct value from the first column of the key.
-#' For safety, it also preserves the old values by copying it into a new column named in the format
-#' `<old name>_old`.
+#' This function can also replace values in a one or more columns using dataframe key(s). If
+#' renaming more than one column, keys can be supplied as a list with each key corresponding to
+#' one column.
+#' The first column in a key contains the correct values, with any number of additional columns
+#' containing project-specific values to check for and replace. The first column of the key must be
+#' named identically to the data column to check, and subsequent columns named identically to their
+#' corresponding project folder name. [`auto_rename()`] will attempt to find cases in the data
+#' column that matches the project column in the key, and replace it with the corresponding correct
+#' value from the first column of the key. For safety, it also preserves the old values by copying
+#' it into a new column named in the format `<old name>_old`.
 #'
 #' @param dataHubPath The path of the "hub" folder containing project folders to analyze.
 #' @param forceBlanking If `TRUE`, `blankData` is used for blanking regardless of whether
@@ -45,8 +47,8 @@
 #' for more information.
 #' @param colNames A character vector of column names to check and fix if necessary. See Details
 #' for more information.
-#' @param variableKey A dataframe of definitions for replacing matching values in a single column.
-#' See Details for more information.
+#' @param variableKey A dataframe, or list of dataframes, of definitions to be used for replacing
+#' matching values in one or more columns. See Details for more information.
 #' @param exportGrowth Defaults to `FALSE`. If `TRUE`, processed growth data will also be exported.
 #' @param combineData Defaults to `FALSE`. If `TRUE`, two additional objects of combined data are
 #' also produced. See Details for more information.
