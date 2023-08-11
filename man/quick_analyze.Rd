@@ -27,8 +27,8 @@ for more information.}
 \item{colNames}{A character vector of column names to check and fix if necessary. See Details
 for more information.}
 
-\item{variableKey}{A dataframe of definitions for replacing matching values in a single column.
-See Details for more information.}
+\item{variableKey}{A dataframe, or list of dataframes, of definitions to be used for replacing
+matching values in one or more columns. See Details for more information.}
 
 \item{exportGrowth}{Defaults to \code{FALSE}. If \code{TRUE}, processed growth data will also be exported.}
 
@@ -80,14 +80,16 @@ joining causes an error somewhere, column names are likely responsible.
 
 \subsection{Reassigning values in a column}{
 
-This function can also replace values in a single column using a key with one column containing
-the correct values and any number of additional columns containing project-specific values to
-check for and replace. The first column of the key must be named identically to the data column
-to check, and subsequent columns named identically to their corresponding project folder name.
-\code{\link[=auto_rename]{auto_rename()}} will attempt to find cases in the data column that matches the project column
-in the key, and replace it with the corresponding correct value from the first column of the key.
-For safety, it also preserves the old values by copying it into a new column named in the format
-\verb{<old name>_old}.
+This function can also replace values in a one or more columns using dataframe key(s). If
+renaming more than one column, keys can be supplied as a list with each key corresponding to
+one column.
+The first column in a key contains the correct values, with any number of additional columns
+containing project-specific values to check for and replace. The first column of the key must be
+named identically to the data column to check, and subsequent columns named identically to their
+corresponding project folder name. \code{\link[=auto_rename]{auto_rename()}} will attempt to find cases in the data
+column that matches the project column in the key, and replace it with the corresponding correct
+value from the first column of the key. For safety, it also preserves the old values by copying
+it into a new column named in the format \verb{<old name>_old}.
 }
 }
 

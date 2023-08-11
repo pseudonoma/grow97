@@ -14,8 +14,8 @@ auto_rename(data, projectName, testNames, renameKey)
 \item{testNames}{A character vector of correct column names to check for, and use to rename
 incorrect column names if necessary.}
 
-\item{testKey}{A dataframe to use as a key for replacing values in a column, as defined by the
-first column of the key.}
+\item{renameKey}{A dataframe, or list of dataframes, to be used as keys for replacing values in
+a column, as defined by the first column of each key.}
 }
 \value{
 The original dataframe or tibble, with corrected column names if applicable.
