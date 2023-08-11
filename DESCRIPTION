@@ -1,7 +1,7 @@
 Package: grow97
 Type: Package
 Title: An Expansion Package for grow96
-Version: 0.4.0
+Version: 0.5.0
 Author: c(person("Ian", "Gooi", email = ian.gooi@uq.net.au))
 Description: This package is designed to be used with \href{https://github.com/JanEngelstaedter/grow96}{grow96}.
   Use this package to automatically process and analyze multiple grow96-compatible projects and datasets, 
