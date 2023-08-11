@@ -134,12 +134,17 @@ auto_blank <- function(data, forceBlanking, hasBlanks, blankData){
 #' @param projectName The name of the current project being processed.
 #' @param testNames A character vector of correct column names to check for, and use to rename
 #' incorrect column names if necessary.
-#' @param testKey A dataframe to use as a key for replacing values in a column, as defined by the
-#' first column of the key.
+#' @param renameKey A dataframe, or list of dataframes, to be used as keys for replacing values in
+#' a column, as defined by the first column of each key.
 #'
 #' @return The original dataframe or tibble, with corrected column names if applicable.
 
 auto_rename <- function(data, projectName, testNames, renameKey){
+
+  # coerce renameKey if it's a naked dataframe
+  if(class(renameKey) == "data.frame"){
+    renameKey <- list(renameKey)
+  }
 
   # hacky fix for project names because I'm tired and pissed off
   # a version of this is run before the wrapper functions export the data object
@@ -152,10 +157,10 @@ auto_rename <- function(data, projectName, testNames, renameKey){
     # Test: are ALL the name tests present?
     if(all(is.element(testNames, names(data)))){
       # if is.element() returns all TRUE, then all() is TRUE and all (names) are correct
-      message("Column names checked and appear correct.")
+      message("Column names checked and appear correct.\n")
     } else {
       # begin rename procedure
-      message("At least one column name appears incorrect; renaming.")
+      message("At least one column name appears incorrect; renaming.\n")
 
       # get indices of variants in names(data)
       where <- c()
@@ -181,38 +186,43 @@ auto_rename <- function(data, projectName, testNames, renameKey){
   ### Fix 2: values in a column ###
   if(!is.null(renameKey)){
 
-    # define the column to change
-    targetCol <- names(renameKey[1])
-    message(paste0("\nFixing values in column \"", targetCol, "\":"))
+    # loop over every key in renameKey and apply it
+    for(key in renameKey){
 
-    # extract a sub-key containing only reference and relevant variant column
-    subKey <- renameKey |>
-      dplyr::select(all_of(targetCol), # reference is determined by first col of key
-                    projectName)|>  # variant is relative to project
-      # dplyr::filter(!is.na(folders[project])) # doesn't seem to work on colnames?
-      # dplyr::filter(complete.cases(.)) # this doesn't work either, people be lyin on the internet
-      na.omit()
+      # define the column to change
+      targetCol <- names(key[1])
+      message(paste0("Fixing values in column \"", targetCol, "\":"))
 
-    # construct vector for replacement
-    replacements <- subKey[[targetCol]][match(data[[targetCol]], subKey[, 2])] # new values
-    originals <- data[[targetCol]][!is.na(replacements)] # old values
+      # extract a sub-key containing only reference and relevant variant column
+      subKey <- key |>
+        dplyr::select(all_of(targetCol), # reference is determined by first col of key
+                      all_of(projectName))|>  # variant is relative to project
+        # dplyr::filter(!is.na(folders[project])) # doesn't seem to work on colnames?
+        # dplyr::filter(complete.cases(.)) # this doesn't work either, people be lyin on the internet
+        na.omit()
 
-    # preserve the old names as a new column
-    data[[paste0(targetCol, "_old")]] <- data[[targetCol]]
+      # construct vector for replacement
+      replacements <- subKey[[targetCol]][match(data[[targetCol]], subKey[, 2])] # new values
+      originals <- data[[targetCol]][!is.na(replacements)] # old values
 
-    if(all(is.na(replacements))){
-      # replacements are all NA, so all() returns TRUE
-      message("No valid replacements in this column.\n")
-    } else {
-      # replace elements of data$`targetCol` that match non-NA replacements
-      data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
-      # currently replaces even identical values; not sure if I want to restrict this to
-      #  only cases where values in replacements don't match target.
+      # preserve the old names as a new column
+      data[[paste0(targetCol, "_old")]] <- data[[targetCol]]
 
-      # report changes because of paranoia (maybe this should be a warning?)
-      message(paste(unique(originals[!is.na(originals)]),
-                    "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
-    } # known bug: if length(originals) != replacements, the list loops around and reports incorrectly.
+      if(all(is.na(replacements))){
+        # replacements are all NA, so all() returns TRUE
+        message("No valid replacements in this column.\n")
+      } else {
+        # replace elements of data$`targetCol` that match non-NA replacements
+        data[[targetCol]][!is.na(replacements)] <- replacements[!is.na(replacements)]
+        # currently replaces even identical values; not sure if I want to restrict this to
+        #  only cases where values in replacements don't match target.
+
+        # report changes because of paranoia (maybe this should be a warning?)
+        message(paste(unique(originals[!is.na(originals)]),
+                      "replaced with", unique(replacements[!is.na(replacements)]), "\n"))
+      } # known bug: if length(originals) != replacements, the list loops around and reports incorrectly.
+
+    }
 
   }
 
